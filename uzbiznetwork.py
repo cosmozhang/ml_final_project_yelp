@@ -17,10 +17,10 @@ lnklsdic={}
 
 for line in data:
     #print line
-    data = json.loads(line)#.replace("\\n", ""))
-    if data["user_id"] not in lnklsdic:
-        lnklsdic[data["user_id"]] = [data["business_id"]]
-    lnklsdic[data["user_id"]].append(data["business_id"])
+    linedata = json.loads(line)#.replace("\\n", ""))
+    if linedata["user_id"] not in lnklsdic:
+        lnklsdic[linedata["user_id"]] = [linedata["business_id"]]
+    lnklsdic[linedata["user_id"]].append(linedata["business_id"])
     
     
 for k in lnklsdic:

@@ -17,8 +17,8 @@ lnklsdic={}
 
 for line in data:
     #print line
-    data = json.loads(line)#.replace("\\n", ""))
-    lnklsdic[data["user_id"]]=data["friends"]
+    linedata = json.loads(line)#.replace("\\n", ""))
+    lnklsdic[linedata["user_id"]]=linedata["friends"]
     
 for k in lnklsdic:
     g.write(k+ ": " +', '.join(lnklsdic[k])+ '\n')

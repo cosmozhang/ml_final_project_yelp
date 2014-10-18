@@ -17,8 +17,9 @@ lnklsdic={}
 
 for line in data:
     #print line
-    data = json.loads(line)#.replace("\\n", ""))
-    lnklsdic[data["business_id"]]=data["review_count"]
+    linedata = json.loads(line)#.replace("\\n", ""))
+    if linedata["city"] == "Summerlin":
+        lnklsdic[linedata["business_id"]]=linedata["review_count"]
     
 for k in lnklsdic:
     #print k
