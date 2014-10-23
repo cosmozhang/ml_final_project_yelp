@@ -1,16 +1,16 @@
 #2014 Yelp Data Challenge 
 #Cosmo Zhang & Praveen @Purdue
-#!/usr/bin/python3
 # Filename:snetwork.py
 # -*- coding: utf-8 -*-
 
+import cPickle as cpcl
 import json
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
 f = open('../data/yelp_academic_dataset_business.json', 'r')
-g = open('./biz_review_counts.csv', 'w')
+g = open('./biz_review_counts_AZ.csv', 'w')
 data = f.readlines()
 
 lnklsdic={}
@@ -18,7 +18,7 @@ lnklsdic={}
 for line in data:
     #print line
     linedata = json.loads(line)#.replace("\\n", ""))
-    if linedata["city"] == "Summerlin":
+    if linedata["state"] == "AZ":
         lnklsdic[linedata["business_id"]]=linedata["review_count"]
     
 for k in lnklsdic:
@@ -27,3 +27,7 @@ for k in lnklsdic:
 
 g.close()
 f.close()
+
+h = open('./biz_review_counts_AZ.data', 'wb')
+cpcl.dump(lnklsdic, h)
+h.close()

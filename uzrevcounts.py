@@ -1,6 +1,5 @@
 #2014 Yelp Data Challenge 
 #Cosmo Zhang & Praveen @Purdue
-#!/usr/bin/python3
 # Filename:snetwork.py
 # -*- coding: utf-8 -*-
 
