@@ -15,22 +15,41 @@ def uzbiznetwork(rvcndic, thre):
     g = open('./user_bz_network_' + str(thre) +'.csv', 'w')
     data = f.readlines()
     lnklsdic={}
+    h = open('./dataset_' + str(thre) +'.csv', 'w')
+    dataset = []
     for line in data:
     #print line
         linedata = json.loads(line)#.replace("\\n", ""))
-        if (linedata["business_id"] in rvcndic) and (rvcndic[linedata["business_id"]] >= thre):
+        if (linedata["business_id"] in rvcndic) and (rvcndic[linedata["business_id"]] >= thre) and (linedata["stars"] != 3):
             if linedata["user_id"] not in lnklsdic:
                 lnklsdic[linedata["user_id"]] = [linedata["business_id"]]
             else:
                 lnklsdic[linedata["user_id"]].append(linedata["business_id"])
+            if linedata["stars"] > 3: pn = '+'
+            elif linedata["stars"] < 3: pn = '-'
+            eg = [str(linedata["user_id"]), str(linedata["business_id"]), pn, str(linedata["text"]).replace('\n', '').replace('\r', '').replace('\t', '')]
+            dataset.append(eg)
+
     for k in lnklsdic:
         g.write(k+ ": " +', '.join(lnklsdic[k])+ '\n')
 
-    g.close()
+    for k in dataset:
+        #print k
+        h.write(k[0]+ ": " +', '.join(k[1:])+ '\n')
+
+
     f.close()
+    g.close()
+    h.close()
+
+    g = open('./dataset_' + str(thre) +'.data', 'wb')
+    cpcl.dump(dataset, g)
+    g.close()
+
     h = open('./user_bz_network_' + str(thre) +'.data', 'wb')
     cpcl.dump(lnklsdic, h)
     h.close()
+    print '**********\ndataset and user-biz network constructed\n*********'
     return lnklsdic
 
 def uznetwork(adic, thre):
