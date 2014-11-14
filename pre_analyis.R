@@ -26,3 +26,4 @@ city_v =  as.table(avgc)
 png(file="cityrv.png")
 barplot(city_v, main = "city", col =1:1000, las=2)
 dev.off()
+

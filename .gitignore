@@ -1,3 +1,7 @@
 *.csv
 *.png
 *.data
+senti/treedata/*
+senti/scripts/*
+senti/models/*
+data/*
