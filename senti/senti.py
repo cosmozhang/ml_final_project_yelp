@@ -16,9 +16,18 @@ sys.setdefaultencoding('utf-8')
 def postag(rvdata):
     piece = rvdata[0][3]
     test = TextBlob(piece)
-    # print [x[0] + '/' + x[1] for x in test.pos_tags]
-    tagstc = ' '.join([x[0] + '/' + x[1] for x in test.pos_tags])
-    print tagstc
+    print test
+    # print [str(x[0] + '/' + x[1]) for x in test.sentences[0].pos_tags]
+    tagstc = ' '.join([str(x[0]) + '/' + str(x[1]) for x in test.sentences[-1].pos_tags])
+    parser = redshift.parser.Parser('models')
+    # print tagstc
+    print test.sentences[0] + ''
+    testsent = Input.from_pos(tagstc)#['A', 'list', 'of', 'tokens', 'is', 'required', '.'])
+    # testsent = Input.from_untagged(test.sentences[0].words)
+    parser.parse(testsent)
+    print testsent.to_conll()#.split('\n')
+    # sentence = Input.from_untagged(
+    # parser.parse(test)
     '''
     parser = redshift.parser
     sentences = redshift.io_parse.read_pos(tagstc)
