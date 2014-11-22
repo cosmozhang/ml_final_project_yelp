@@ -4,11 +4,12 @@ import cPickle
 import numpy as np
 import matplotlib.pyplot as plt
 import numpy.random as rand
+import copy
 
-h = open('user_user_network_500.data', 'r')
+h = open('../data/user_user_network_500.data', 'r')
 uuNetwork = cPickle.load(h)
 h.close()
-h = open('dataset_500.data', 'r')
+h = open('../data/dataset_500.data', 'r')
 ubRatings = cPickle.load(h)
 h.close()
 
@@ -40,12 +41,31 @@ for line in ubRatings:
 		ratings[usrDict[line[0]], bizDict[line[1]]] = -1
 # np.sum(ratings) / np.prod(ratings.shape) # Sparsity
 
-alpha = .1 # Learning rate
 train = rand.binomial(1, .7, ratings.shape) * ratings
-trainCopy = train
-# np.sum(train) / np.prod(train.shape) # Sparsity
-for k in range(1000):  # Number of passes
-	for i in range(train.shape[0]):
-		train[i,:] += alpha * np.dot(network[i,:], train) # * (train[i,:] == 0)
+trainCopy = copy.deepcopy(train)
 
-np.sum((ratings - train) * (ratings - train) * np.abs(ratings - trainCopy)) / np.sum(np.abs(ratings - trainCopy))
+# alpha = .1 # Learning rate
+# np.sum(train) / np.prod(train.shape) # Sparsity
+for k in range(200):  # Number of passes
+	for i in range(train.shape[0]):
+		friends = np.nonzero(network[i,:])
+		if len(friends) > 0:
+			for j in range(train.shape[1]):
+				if trainCopy[i,j] == 0:
+					friendRatings = train[friends,j]
+					friendRatings = friendRatings[friendRatings > 0]
+					if len(friendRatings) > 0:
+						train[i,j] = np.mean(friendRatings)
+
+# Evaluation
+np.sum(np.abs(ratings - train) * np.abs(ratings - trainCopy)) / np.sum(ratings - trainCopy != 0)
+# 0.47551789077212808
+
+networkAug = copy.deepcopy(network)
+for biz in trainCopy:
+  commonPos = np.nonzero(trainCopy[:,biz] == 1)
+  commonNeg = np.nonzero(trainCopy[:,biz] == -1)
+  for i in commonPos:
+    for j in commonPos:
+      networkAug[i, j] = 1
+

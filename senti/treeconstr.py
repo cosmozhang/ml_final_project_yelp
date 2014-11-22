@@ -12,32 +12,44 @@ reload(sys)
 import nltk
 sys.setdefaultencoding("utf-8")
 
-def traverse(t):
-    try:
-        t.node
-    except AttributeError:
-        print t
-    
-    else:
-        print '(', t.node,
-        for child in t:
-            traverse(child)
-        print ')',
+
+class node(object):
+    def __init__(self, idx, word, parent = None, children = [], parentfactor = None, childfactor = None):
+        self.children = children
+        self.parent = parent
+        self.idx = idx
+        self.word = word
+        self.parentfactor = parentfactor
+        self.childfactor = childfactor
+
+def reformat(cmt):
+    wtp  = [tuple(x.rsplit('/')) for x in eg[0][0].split()] #word/tag
+    # print wtp, '\n'
+    wtp.insert(0, tuple([u'ROOT', u'S'])) #add the root 'word'
+    # print wtp, '\n'
+
+    #dependency relation reformat
+    step1 = [x.strip(')').split('(',1) for x in eg[2]]
+    step2 = [[x[0]] + x[1].split(', ') for x in step1]
+    step3 = [[x[0]] + x[1].rsplit('-', 1) + x[2].rsplit('-', 1) for x in step2]
+    depend = [[x[0]] + [tuple([x[1], int(x[2])])] + [tuple([x[3], int(x[4])])] for x in step3]
+
+    return wtp, depend
+
 
 
 def construct_tree(rvdata):
-    # tparse = nltk.tree.Tree
-    for eg in rvdata:
-        print type(eg[3][0])
-        eg[3][0].draw()
-        # traverse(eg[3][0])
-        
-        # try:
-        '''
-        text = nltk.sent_tokenize(cmt)
-        text = [nltk.word_tokenize(snt) for snt in text]
-        text = [nltk.pos_tag(snt) for snt in text]
-        '''
+    
+    wtp, depend = reformat(eg[3])
+    
+    # print eg[2], '\n'
+    
+    # treesent = nltk.Tree('S', rvdata[0][3][1])
+    # print treesent.label()
+    
+    # traverse(treesent)
+    # treesent.draw()
+
 
 
 
@@ -68,9 +80,9 @@ def main():
     datafilename = sys.argv[1]
     # f = codecs.open(datafilename, 'rb', encoding="utf-8")
     f=open(datafilename, 'rb')
-    revdata = cpcl.load(f)
+    parsedrev = cpcl.load(f)
     f.close()
-    treeddata = construct_tree(revdata)
+    treeddata = construct_tree(parsedrev)
     # print revdata[0] rev[0][3] is the review, and rev[0][2] is the polarity
 
 

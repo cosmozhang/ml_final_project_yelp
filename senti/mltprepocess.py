@@ -1,6 +1,6 @@
 ## Cosmo Zhang @ Purdue 11/2014
 ## cs578 final project on yelp
-## Filename:sdfpreprocess.py
+## Filename:mltpreprocess.py
 ## -*- coding: utf-8 -*-
 
 import gc
@@ -11,25 +11,29 @@ import sys
 import numpy
 reload(sys)
 import nltk
-from nltk.parse.stanford import StanfordParser
+from nltk.parse.malt import MaltParser
 from pprint import pprint
 sys.setdefaultencoding("utf-8")
 
 def sdfprocess(rvdata, partidx):
-    parser=StanfordParser(path_to_jar='/home/cosmo/Dropbox/Purdue/nlp/stanford-corenlp-full-2014-08-27/stanford-corenlp-3.4.1.jar', path_to_models_jar='/home/cosmo/Dropbox/Purdue/nlp/stanford-corenlp-full-2014-08-27/stanford-corenlp-3.4.1-models.jar', model_path='edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz', java_options='-mx15000m')
+    os.environ["MALT_PARSER"] = "/home/cosmo/Dropbox/Purdue/nlp/maltparser-1.8"
+    parser=MaltParser(mco='engmalt.poly-1.7', working_dir='/home/cosmo/Dropbox/Purdue/nlp/maltparser-1.8', additional_java_args=['-Xmx5000m'])
     sdfdata=[]
     cnn = 1
+    # demo()
+    print parser.raw_parse("I am a student.")
     for eg in rvdata:
         if cnn%100 == 0: print "%f%% of document %d finished" % (cnn*100*1.0/len(rvdata), partidx+1)
         cmt = eg[3].decode('utf-8') #3 is the idx of comment
         sentences = nltk.sent_tokenize(cmt)
-        sdfparsed = parser.raw_parse_sents(sentences)
+        sdfparsed = [parser.raw_parse(sentence) for sentence in sentences]
         sdfdata.append(eg[:3]+[sdfparsed])
         # print cnn
-        # print sdfparsed
+        print sdfparsed
         # print sdfdata
         cnn += 1        
-        # if cnn > 5: break
+        if cnn > 5: break
+        
     return sdfdata
 
 
@@ -52,7 +56,7 @@ def main():
     sdfdata = sdfprocess(partdata, i)
     # sdfdata = []
     # g = file('sdfdata.data', 'wb')
-    g = file('../data/sdfdata'+str(i+1)+'.data', 'wb')
+    g = file('maltdata'+str(i+1)+'.data', 'wb')
     cpcl.dump(sdfdata, g)
     g.close()
     del sdfdata

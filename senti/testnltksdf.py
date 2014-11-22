@@ -1,6 +1,6 @@
 ## Cosmo Zhang @ Purdue 11/2014
 ## cs578 final project on yelp
-## Filename:sdfpreprocess.py
+## Filename:testnltksdf.py
 ## -*- coding: utf-8 -*-
 
 import gc
@@ -26,10 +26,10 @@ def sdfprocess(rvdata, partidx):
         sdfparsed = parser.raw_parse_sents(sentences)
         sdfdata.append(eg[:3]+[sdfparsed])
         # print cnn
-        # print sdfparsed
+        pprint(sdfparsed[2])
         # print sdfdata
         cnn += 1        
-        # if cnn > 5: break
+        if cnn > 5: break
     return sdfdata
 
 
@@ -52,7 +52,7 @@ def main():
     sdfdata = sdfprocess(partdata, i)
     # sdfdata = []
     # g = file('sdfdata.data', 'wb')
-    g = file('../data/sdfdata'+str(i+1)+'.data', 'wb')
+    g = file('sdfdata'+str(i+1)+'.data', 'wb')
     cpcl.dump(sdfdata, g)
     g.close()
     del sdfdata
