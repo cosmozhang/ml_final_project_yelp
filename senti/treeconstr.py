@@ -10,58 +10,281 @@ import sys
 import numpy
 reload(sys)
 import nltk
+from random import uniform
+from poldicload import loadbinpoldic #my own module
+from txttoformat import reformat
+from math import exp
+from nltk.stem import SnowballStemmer
 sys.setdefaultencoding("utf-8")
 
 
-class node(object):
-    def __init__(self, idx, word, parent = None, children = [], parentfactor = None, childfactor = None):
-        self.children = children
+#global
+
+
+class NodeFactor(object):
+    def __init__(self, parent, word_q, word_r, word_baseform, postag):
         self.parent = parent
-        self.idx = idx
+        self.word_q = word_q
+        self.word_r = word_r
+        self.word_baseform = word_baseform
+        self.postag = postag
+        self.posv = None
+        self.negv = None
+        
+    def __str__(self):
+        return self.word_baseform
+
+    def calnfv(self, paradicN):
+        #initialization of parameters if it is not in the parameter dictionary
+        #parameters for featureset a
+        if '+' not in paradicN[0]:
+            paradicN[0]['+'] = uniform(-1.0, 1.0)
+        if '-' not in paradicN[0]:
+            paradicN[0]['-'] = uniform(-1.0, 1.0)
+        #parameters for featureset b
+        if '+' + self.word_q not in paradicN[1]:
+            paradicN[1]['+' + self.word_q] = uniform(-1.0, 1.0)
+        if '-' + self.word_q not in paradicN[1]:
+            paradicN[1]['-' + self.word_q] = uniform(-1.0, 1.0)
+        #parameters for featureset tag
+        if '+' + self.postag not in paradicN[2]:
+            paradicN[2]['+' + self.postag] = uniform(-1.0, 1.0)
+        if '-' + self.postag not in paradicN[2]:
+            paradicN[2]['-' + self.postag] = uniform(-1.0, 1.0)
+        #parameters for featureset word
+        if '+' + self.word_baseform not in paradicN[3]:
+            paradicN[3]['+' + self.word_baseform] = uniform(-1.0, 1.0)
+        if '-' + self.word_baseform not in paradicN[3]:
+            paradicN[3]['-' + self.word_baseform] = uniform(-1.0, 1.0)
+
+        #calculate probabilities of both posi and neg
+        self.posv = exp(paradicN[0]['+'] + paradicN[1]['+' + self.word_q] + paradicN[2]['+' + self.postag] + paradicN[3]['+' + self.word_baseform])
+        self.negv = exp(paradicN[0]['-'] + paradicN[1]['-' + self.word_q] + paradicN[2]['-' + self.postag] + paradicN[3]['-' + self.word_baseform])
+        # self.pos_p = sum_pos/(sum_pos + sum_neg)
+        # self.neg_p = sum_neg/(sum_pos + sum_neg)
+        return (self.posv, self.negv)
+
+class EdgeFactor(object):
+    def __init__(self, parent, child, parent_word_q, parent_word_r, child_word_baseform, parent_word_baseform):
+        self.parent = parent
+        self.child = child
+        self.parent_word_q = parent_word_q
+        self.child_word_baseform = child_word_baseform
+        self.parent_word_baseform = parent_word_baseform
+        self.parent_word_r = parent_word_r
+        self.pos_posv = None
+        self.pos_negv = None
+        self.neg_negv = None
+        self.neg_posv = None
+        self.vec = [None, None]
+
+    def __str__(self):
+        return self.parent_word_baseform + '~' + self.child_word_baseform
+
+    def calefv(self, paradicE):
+        #initialization of parameters if it is not in the parameter dictionary
+        #parameters for featureset A
+        if '++' not in paradicE[0]:
+            paradicE[0]['++'] = uniform(0.9, 1.1)
+        if '--' not in paradicE[0]:
+            paradicE[0]['--'] = uniform(0.9, 1.1)
+        if '+-' not in paradicE[0]:
+            paradicE[0]['+-'] = uniform(-1.0, 1.0)
+        if '-+' not in paradicE[0]:
+            paradicE[0]['-+'] = uniform(-1.0, 1.0)    
+        '''
+        #parameters for featureset B
+        if '+' + word_q not in paradicE[1]:
+            paradicE[1]['+' + self.word_q] = uniform(-1.0, 1.0)
+        if '-' + word_q not in paradicE[1]:
+            paradicE[1]['-' + self.word_q] = uniform(-1.0, 1.0)
+        #parameters for featureset tag
+        if '+' + self.postag not in paradicE[2]:
+            paradicE[2]['+' + self.postag] = uniform(-1.0, 1.0)
+        if '-' + self.postag not in paradicE[2]:
+            paradicE[2]['-' + self.postag] = uniform(-1.0, 1.0)
+        '''
+        #parameters for parent_featureset word
+        if '++' + self.parent_word_baseform not in paradicE[3]:
+            paradicE[3]['++' + self.parent_word_baseform] = uniform(-1.0, 1.0)
+        if '--' + self.parent_word_baseform not in paradicE[3]:
+            paradicE[3]['--' + self.parent_word_baseform] = uniform(-1.0, 1.0)
+        if '+-' + self.parent_word_baseform not in paradicE[3]:
+            paradicE[3]['+-' + self.parent_word_baseform] = uniform(-1.0, 1.0)
+        if '-+' + self.parent_word_baseform not in paradicE[3]:
+            paradicE[3]['-+' + self.parent_word_baseform] = uniform(-1.0, 1.0)
+
+        #parameters for child_featureset word
+        if '++' + self.child_word_baseform not in paradicE[4]:
+            paradicE[4]['++' + self.child_word_baseform] = uniform(-1.0, 1.0)
+        if '--' + self.child_word_baseform not in paradicE[4]:
+            paradicE[4]['--' + self.child_word_baseform] = uniform(-1.0, 1.0)
+        if '+-' + self.child_word_baseform not in paradicE[4]:
+            paradicE[4]['+-' + self.child_word_baseform] = uniform(-1.0, 1.0)
+        if '-+' + self.child_word_baseform not in paradicE[4]:
+            paradicE[4]['-+' + self.child_word_baseform] = uniform(-1.0, 1.0)
+
+        #calculate probabilities of both posi and neg
+        self.pos_posv = exp(paradicE[0]['++'] + paradicE[3]['++' + self.parent_word_baseform] + paradicE[4]['++' + self.child_word_baseform])
+        self.neg_negv = exp(paradicE[0]['--'] + paradicE[3]['--' + self.parent_word_baseform] + paradicE[4]['--' + self.child_word_baseform])
+        self.pos_negv = exp(paradicE[0]['+-'] + paradicE[3]['+-' + self.parent_word_baseform] + paradicE[4]['+-' + self.child_word_baseform])
+        self.neg_posv = exp(paradicE[0]['-+'] + paradicE[3]['-+' + self.parent_word_baseform] + paradicE[4]['-+' + self.child_word_baseform])
+        # self.pos_p = sum_pos/(sum_pos + sum_neg)
+        # self.neg_p = sum_neg/(sum_pos + sum_neg)
+        return (self.pos_posv, self.pos_negv, self.neg_posv, self.neg_negv)
+
+class Node(object):
+    def __init__(self, word, tag):
+        self.children = []
+        self.parents = []
+        # self.toparantrelation = None
+        # self.idx = idx
+        self.pol = None
         self.word = word
-        self.parentfactor = parentfactor
-        self.childfactor = childfactor
+        self.parents_edgefactor = []
+        self.children_edgefactor = []
+        self.nodefactor = None
+        self.tag = tag 
+        self.toplgod = float("-inf")
+        self.toparentrelation = {}
 
-def reformat(cmt):
-    wtp  = [tuple(x.rsplit('/')) for x in eg[0][0].split()] #word/tag
-    # print wtp, '\n'
-    wtp.insert(0, tuple([u'ROOT', u'S'])) #add the root 'word'
-    # print wtp, '\n'
-
-    #dependency relation reformat
-    step1 = [x.strip(')').split('(',1) for x in eg[2]]
-    step2 = [[x[0]] + x[1].split(', ') for x in step1]
-    step3 = [[x[0]] + x[1].rsplit('-', 1) + x[2].rsplit('-', 1) for x in step2]
-    depend = [[x[0]] + [tuple([x[1], int(x[2])])] + [tuple([x[3], int(x[4])])] for x in step3]
-
-    return wtp, depend
-
-
-
-def construct_tree(rvdata):
+    def __str__(self):
+        return self.word
     
+    def addparent(self, obj, relation):
+        self.parents.append(obj)
+        self.toparentrelation[obj] = relation
+        # self.toparantrelation = relation
+
+    def addchild(self, obj):
+        self.children.append(obj)
+    
+    def addchildfactor(self, obj):
+        self.children_edgefactor.append(obj)
+
+    def addparentfactor(self, obj):
+        self.parents_edgefactor.append(obj)
+
+    def addnodefactor(self, obj):
+        self.nodefactor = obj
+
+def simplebfs(nd):
+    if nd.children != []:
+        depthls = []
+        for child in nd.children:
+            if child.toplgod < nd.toplgod + 1:
+                child.toplgod = nd.toplgod +1
+            depthls.append(simplebfs(child))
+        return max(depthls)
+    else:
+        return nd.toplgod
+        
+def word_q_check(wd, pold):
+    if wd in pold[0]:
+        return 'q+'
+    elif wd in pold[1]:
+        return 'q-'
+    else:
+        return 'q0'
+
+def construct_tree(eg, pold):
+    snowball_stemmer = SnowballStemmer("english")
     wtp, depend = reformat(eg[3])
+    # print wtp
+    # print depend
+    nodels = []
+    for item in wtp:
+        if item[0] != 'ROOT':
+            newnode = Node(item[0], item[1])
+        else:
+            newnode = Node('rootnode', item[1])
+        word_q = word_q_check(item[0], pold)
+        word_r = 'r' #will change to reverse later after got the dictionary
+        word_baseform = snowball_stemmer.stem(item[0])
+        if item[0] != 'ROOT': newnode.nodefactor = NodeFactor(newnode, word_q, word_r, word_baseform, item[1]) #nodefactor initialize and attach them to the hidden varibles
+        nodels.append(newnode) #nodels[0] is the root
     
-    # print eg[2], '\n'
+    #tree construction part!
+    for each in depend:
+        if each[0] != 'conj_and':
+            parentidx = each[1][1]
+            childidx = each[2][1]
+            relation = each[0]
+            # print "parent:", parentidx, nodels[parentidx]
+            # print "child:", childidx, nodels[childidx]
+            nodels[parentidx].addchild(nodels[childidx]) #add a child to a node
+            nodels[childidx].addparent(nodels[parentidx], relation) #add a parent to a node
+            
+            #add a edgefactor to two hidden variables with a relationship
+            parent_word_q = word_q_check(nodels[parentidx].word, pold)
+            parent_word_r = 'r' #need to change later
+            child_word_baseform = snowball_stemmer.stem(nodels[childidx].word)
+            parent_word_baseform = snowball_stemmer.stem(nodels[parentidx].word)
+            edgefactor = EdgeFactor(nodels[parentidx], nodels[childidx], parent_word_q, parent_word_r, child_word_baseform, parent_word_baseform)
+            nodels[parentidx].addchildfactor(edgefactor)
+            nodels[childidx].addparentfactor(edgefactor)
+                # print nodels[childidx], nodels[childidx].parents_edgefactor[0]            
+                # print nodels[childidx].parents
+    #BFS for topological order
+    nodels[0].toplgod = 0
+    treedepth = simplebfs(nodels[0])
+    for nd in nodels: #remove non-informative words
+        if nd.toplgod == float('-inf'):
+            nodels.pop(nodels.index(nd))
+    # print treedepth
+    nodels = sorted(nodels, key=lambda nd: nd.toplgod, reverse=True) #sort the nodelost based on nodes' topological order
+    return nodels, treedepth
+
+
+def estimate():
+    pass
+
+def inference(ndls, paradicN, paradicE):
+    #belief propagation algo
+    for nd in ndls[:-1]:
+        nodevec = [1, 1]
+        #if nd.nodefactor != None:
+        nodevec[0], nodevec[1] = nd.nodefactor.calnfv(paradicN) # a vector of two values from the node factor
+        # print nodevec
+        if nd.children_edgefactor != []:
+            for childedf in nd.children_edgefactor:
+                nodevec[0] *= childedf.vec[0] #positive polarity
+                nodevec[1] *= childedf.vec[1] #negative polarity
+        # print nd, nodevec
+        for parentedf in nd.parents_edgefactor:
+            factorvec = parentedf.calefv(paradicE)
+            parentedf.vec[0] = factorvec[0]*nodevec[0] + factorvec[1]*nodevec[1] #marginalize current node
+            parentedf.vec[1] = factorvec[2]*nodevec[0] + factorvec[3]*nodevec[1]
     
-    # treesent = nltk.Tree('S', rvdata[0][3][1])
-    # print treesent.label()
+    #get the polarity of the root
+    rootpos = ndls[-1].children_edgefactor[0].vec[0]
+    rootneg = ndls[-1].children_edgefactor[0].vec[1]
+    if rootpos >= rootneg:
+        sntpolarity = '+'
+    elif rootpos < rootneg:
+        sntpolarity = '-'
+
+    return sntpolarity
+            
+
+
+
+
+def testfunc(parsedrev, poldic):
+    #rev[0][3] is the review, and rev[0][2] is the polarity
+    eg = parsedrev[0]
+    nodels, treedepth = construct_tree(eg, poldic)
+    '''
+    ## small print test
+    for nd in nodels:
+        if nd.children_edgefactor != []:
+            print nd, nd.toplgod, nd.children_edgefactor[0]
+    '''
+    paradicN = [{}, {}, {}, {}]
+    paradicE = [{}, {}, {}, {}, {}]
+    print 'sentence sentiment is %s' % inference(nodels, paradicN, paradicE)
     
-    # traverse(treesent)
-    # treesent.draw()
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
 
 
 
@@ -82,9 +305,9 @@ def main():
     f=open(datafilename, 'rb')
     parsedrev = cpcl.load(f)
     f.close()
-    treeddata = construct_tree(parsedrev)
-    # print revdata[0] rev[0][3] is the review, and rev[0][2] is the polarity
-
+    poldic = loadbinpoldic() #poldic[0] is positive, poldic[1] is negative
+    testfunc(parsedrev, poldic)
+                
 
 if __name__ == "__main__":
     main()
