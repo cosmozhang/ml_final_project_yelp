@@ -30,6 +30,8 @@ class NodeFactor(object):
         self.postag = postag
         self.posv = None
         self.negv = None
+        self.downvec0 = [None, None]
+        self.downvec1 = [None, None]
         
     def __str__(self):
         return self.word_baseform
@@ -76,7 +78,9 @@ class EdgeFactor(object):
         self.pos_negv = None
         self.neg_negv = None
         self.neg_posv = None
-        self.vec = [None, None]
+        self.upvec = [None, None]
+        self.downvec0 = [None, None]
+        self.downvec1 = [None, None]
 
     def __str__(self):
         return self.parent_word_baseform + '~' + self.child_word_baseform
@@ -191,7 +195,7 @@ def construct_tree(eg, pold):
     snowball_stemmer = SnowballStemmer("english")
     wtp, depend = reformat(eg[3])
     # print wtp
-    # print depend
+    print depend
     nodels = []
     for item in wtp:
         if item[0] != 'ROOT':
@@ -236,39 +240,100 @@ def construct_tree(eg, pold):
     return nodels, treedepth
 
 
-def estimate():
-    pass
+def estimate(ndls, paradicN, paradicE, rtlabel):
+    #forword stage, all messages passed to the root
+    for nd in ndls[:-1]:
+        upvec = [1.0, 1.0]
+        #if nd.nodefactor != None:
+        upvec[0], upvec[1] = nd.nodefactor.calnfv(paradicN) # a vector of two values from the node factor
+        # print nodevec
+        if nd.children_edgefactor != []:
+            for childedf in nd.children_edgefactor:
+                upvec[0] *= childedf.upvec[0] #positive polarity
+                upvec[1] *= childedf.upvec[1] #negative polarity
+        # print nd, nodevec
+        for parentedf in nd.parents_edgefactor:
+            factorvec = parentedf.calefv(paradicE)
+            #marginalize current node
+            parentedf.upvec[0] = factorvec[0]*upvec[0] + factorvec[1]*upvec[1] 
+            parentedf.upvec[1] = factorvec[2]*upvec[0] + factorvec[3]*upvec[1]
+    #backward stage, all messages passed back
+    #two types of message of s0: the root label is given; and the root label is marginalized
+    #first deal with the root
+    rootinfo = ndls[-1].children_edgefactor[0].calefv(paradicE)
+    #type1
+    if rtlabel == '+':
+        ndls[-1].children_edgefactor[0].downvec0 = [rootinfo[0], rootinfo[2]]
+    elif rtlabel == '-':
+        ndls[-1].children_edgefactor[0].downvec0 = [rootinfo[3], rootinfo[1]]
+    #type2
+    ndls[-1].children_edgefactor[0].downvec1 = [rootinfo[0]+rootinfo[3], rootinfo[1]+rootinfo[2]]
+    # print ndls[-1].children_edgefactor[0], ndls[-1].children_edgefactor[0].downvec0
+    for nd in reversed(ndls[:-1]):
+        downvec0 = [1.0, 1.0]
+        downvec1 = [1.0, 1.0]
+        downvec0[0], downvec0[1] = nd.nodefactor.calnfv(paradicN) #type1
+        downvec1[0], downvec1[1] = nd.nodefactor.calnfv(paradicN) #type2
+        for parentedf in nd.parents_edgefactor:
+            # print parentedf, parentedf.downvec0
+            #parent, nodefactor product
+            downvec0[0] *= parentedf.downvec0[0] #pos
+            downvec0[1] *= parentedf.downvec0[1] #neg
+            downvec1[0] *= parentedf.downvec1[0] #pos
+            downvec1[1] *= parentedf.downvec1[1] #neg
+
+        prod = [1.0, 1.0]
+        if nd.children_edgefactor != []:
+            for tempchildedf in nd.children_edgefactor: #product of all up messages
+                    prod[0] *= tempchildedf.upvec[0]
+                    prod[1] *= tempchildedf.upvec[1]
+
+            #backward message
+            for childedf in nd.children_edgefactor:                
+                # factorvec = childedf.calefv(paradicE) #wait till need probability 
+                #type1
+                childedf.downvec0[0] = downvec0[0]*prod[0]/childedf.upvec[0] #+
+                childedf.downvec0[1] = downvec0[1]*prod[1]/childedf.upvec[1] #-
+                #type2
+                childedf.downvec1[0] = downvec1[0]*prod[0]/childedf.upvec[0] #+
+                childedf.downvec1[1] = downvec1[1]*prod[1]/childedf.upvec[1] #-
+        #nodefactor's marginal
+        nd.nodefactor.downvec0[0] = downvec0[0] * prod[0]
+        nd.nodefactor.downvec0[1] = downvec0[1] * prod[1]
+
+        nd.nodefactor.downvec1[0] = downvec1[0] * prod[0]
+        nd.nodefactor.downvec1[1] = downvec1[1] * prod[1]
+    #backforward propgation done
+
+    #parameter estimate 
+    
 
 def inference(ndls, paradicN, paradicE):
     #belief propagation algo
     for nd in ndls[:-1]:
-        nodevec = [1, 1]
+        nodevec = [1.0, 1.0]
         #if nd.nodefactor != None:
         nodevec[0], nodevec[1] = nd.nodefactor.calnfv(paradicN) # a vector of two values from the node factor
         # print nodevec
         if nd.children_edgefactor != []:
             for childedf in nd.children_edgefactor:
-                nodevec[0] *= childedf.vec[0] #positive polarity
-                nodevec[1] *= childedf.vec[1] #negative polarity
+                nodevec[0] *= childedf.upvec[0] #positive polarity
+                nodevec[1] *= childedf.upvec[1] #negative polarity
         # print nd, nodevec
         for parentedf in nd.parents_edgefactor:
             factorvec = parentedf.calefv(paradicE)
-            parentedf.vec[0] = factorvec[0]*nodevec[0] + factorvec[1]*nodevec[1] #marginalize current node
-            parentedf.vec[1] = factorvec[2]*nodevec[0] + factorvec[3]*nodevec[1]
+            parentedf.upvec[0] = factorvec[0]*nodevec[0] + factorvec[1]*nodevec[1] #marginalize current node
+            parentedf.upvec[1] = factorvec[2]*nodevec[0] + factorvec[3]*nodevec[1]
     
     #get the polarity of the root
-    rootpos = ndls[-1].children_edgefactor[0].vec[0]
-    rootneg = ndls[-1].children_edgefactor[0].vec[1]
+    rootpos = ndls[-1].children_edgefactor[0].upvec[0]
+    rootneg = ndls[-1].children_edgefactor[0].upvec[1]
     if rootpos >= rootneg:
         sntpolarity = '+'
     elif rootpos < rootneg:
         sntpolarity = '-'
 
     return sntpolarity
-            
-
-
-
 
 def testfunc(parsedrev, poldic):
     #rev[0][3] is the review, and rev[0][2] is the polarity
@@ -283,6 +348,7 @@ def testfunc(parsedrev, poldic):
     paradicN = [{}, {}, {}, {}]
     paradicE = [{}, {}, {}, {}, {}]
     print 'sentence sentiment is %s' % inference(nodels, paradicN, paradicE)
+    estimate(nodels, paradicN, paradicE, '+')
     
     
 
