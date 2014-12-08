@@ -1,0 +1,327 @@
+ABATE
+
+H4Lvd Negativ Passive Decreas IAV TranLw SUPV
+
+ALLEVIATE
+
+H4Lvd Positiv Affil Active Decreas Exert IAV TrnGain SUPV
+
+AMPUTATE
+
+H4 Negativ Active Decreas IAV SUPV
+
+ATROPHY
+
+H4Lvd Negativ Ngtv Weak Passive Decreas IAV TrnLoss SUPV
+
+CHEAPEN
+
+H4 Negativ Weak Active Decreas IAV SUPV
+
+COLLAPSE#1
+
+H4Lvd Negativ Ngtv Weak Passive Decreas NegAff Modif
+
+CONTRACT#3
+
+H4Lvd Passive Decreas IAV SUPV 0% verb: To draw inward, to shrink; to get or acquire, as a disease (0)
+
+CORRODE
+
+H4 Negativ Passive Decreas IAV SUPV
+
+CORROSION
+
+H4 Negativ Decreas Noun
+
+CORROSIVE
+
+H4 Negativ Decreas IPadj Modif
+
+COUNTERACT
+
+H4Lvd Negativ Ngtv Strong Active Decreas Negate IAV PowCon PowTot SUPV
+
+COUNTERACTION
+
+H4Lvd Negativ Ngtv Strong Active Decreas Negate PowCon PowTot Noun
+
+CUT#2
+
+H4Lvd Negativ Ngtv Strong Active Decreas IAV TrnLoss SUPV 8% verb-noun: To abridge, shorten, reduce, terminate; reduction, termination (1)
+
+DECAY#1
+
+H4Lvd Negativ Ngtv Weak Passive Decreas Noun
+
+DECAY#2
+
+H4Lvd Negativ Ngtv Weak Passive Decreas DAV SUPV
+
+DECLINE#1
+
+H4Lvd Negativ Ngtv Weak Passive Decreas TrnLoss Noun
+
+DECLINE#2
+
+H4Lvd Negativ Ngtv Weak Passive Decreas IAV TrnLoss SUPV
+
+DECOMPOSE
+
+H4 Negativ Passive NatrPro Decreas IAV SUPV
+
+DECREASE#1
+
+H4Lvd Negativ Ngtv Weak Passive Decreas TrnLoss Noun
+
+DECREASE#2
+
+H4Lvd Negativ Ngtv Weak Passive Decreas DAV TrnLoss SUPV
+
+DEPLETE
+
+H4Lvd Negativ Decreas IAV MeansLw SUPV
+
+DEPRECIATE
+
+H4Lvd Negativ Ngtv Weak Passive Decreas IAV WltOth WltTot SUPV
+
+DEPRECIATION
+
+H4Lvd Negativ Ngtv Passive Econ@ ECON Decreas WltOth WltTot Noun
+
+DETRACT
+
+H4 Negativ Active Decreas IAV SUPV
+
+DIM#2
+
+H4Lvd Negativ Ngtv Decreas IAV SUPV
+
+DIMINISH
+
+H4Lvd Weak Passive Decreas DAV TranLw SUPV
+
+DISCOUNT#2
+
+H4Lvd Passive Decreas Negate IAV SUPV
+
+DISCOURAGEMENT
+
+H4 Negativ Weak Submit Vice Decreas Noun
+
+DISPEL
+
+H4Lvd Negativ Power Active ComForm Decreas IAV PowLoss PowTot SUPV
+
+DISPENSE
+
+H4 Negativ Power Active Decreas IAV SUPV
+
+DRAIN#2
+
+H4Lvd Decreas DAV SUPV
+
+DWINDLE
+
+H4 Negativ Decreas IAV SUPV
+
+EASE#2
+
+H4Lvd Positiv Pstv Decreas IAV SUPV 20% verb: To make less strained
+
+EMPTY#2
+
+H4Lvd Negativ Ngtv Active Decreas DAV SUPV 4% verb: To void
+
+ENGULF
+
+H4Lvd Negativ Ngtv Hostile Strong Active Ovrst Decreas IAV TranLw SUPV
+
+ERADICATE
+
+H4 Negativ Power Active Decreas Finish IAV SUPV
+
+ERASE
+
+H4 Negativ Active Decreas Finish DAV SUPV
+
+ERODE
+
+H4 Negativ Passive Decreas DAV SUPV
+
+EROSION
+
+H4 Negativ Decreas Noun
+
+EXASPERATE
+
+H4Lvd Negativ Decreas IAV WlbPsyc WlbTot SUPV
+
+EXHAUST
+
+H4 Negativ Decreas IAV SUPV
+
+EXTERMINATE
+
+H4 Negativ Power Active Decreas Finish IAV SUPV
+
+EXTERMINATION
+
+H4 Negativ Power Decreas Finish Noun
+
+FADE#2
+
+H4Lvd Passive Decreas IAV SUPV
+
+FALL#7
+
+H4Lvd Negativ Ngtv Weak Passive Decreas IAV TrnLoss SUPV 5% verb-idiom: 'fall apart'--disintegrate
+
+FALTER
+
+H4Lvd Negativ Ngtv Weak Undrst Decreas IAV SUPV
+
+INSUFFICIENCY
+
+H4 Negativ Weak Fail Decreas Noun
+
+LANGUISH
+
+H4 Negativ Weak Passive Fail Decreas SV SUPV
+
+LEAKAGE
+
+H4 Negativ Decreas Noun
+
+LIGHTEN
+
+H4Lvd Decreas IAV SUPV
+
+LOWER#3
+
+H4Lvd Decreas Noun 4% noun: "Lowering"--reduction
+
+MELT
+
+H4Lvd Weak Decreas DAV SUPV
+
+MINIMIZE
+
+H4Lvd Strong Active Undrst Decreas IAV SUPV
+
+PASS#5
+
+H4 Decreas Handels 1% adj: "Passing"--transient, moving by
+
+PURIFY
+
+H4 Positiv Active Virtue Work Decreas IAV SUPV
+
+RATION
+
+H4 Negativ Active Decreas IAV SUPV
+
+RECEDE
+
+H4 Negativ Passive Decreas IAV SUPV
+
+RECESSION
+
+H4 Negativ Econ@ Decreas Noun
+
+REDUCE
+
+H4Lvd Strong Decreas IAV TranLw SUPV verb: To diminish, degrade, subdue
+
+REDUCTION
+
+H4Lvd Weak Decreas Noun
+
+REFINE
+
+H4 Positiv Active Virtue Decreas IAV SUPV
+
+RETARDATION
+
+H4Lvd Decreas Noun
+
+REVERSE#1
+
+H4Lvd Vary Decreas Noun
+
+RID
+
+H4Lvd Negativ Hostile Active Decreas IAV SUPV
+
+ROT
+
+H4 Negativ Passive NatrPro Decreas DAV SUPV
+
+SCARCITY
+
+H4Lvd Negativ Need Decreas WltOth WltTot Noun
+
+SHRANK
+
+H4Lvd Weak Passive Decreas DAV RcEthic RcTot SUPV ED
+
+SHRED
+
+H4 Negativ Hostile Active Decreas Exert IAV SUPV
+
+SHRINK
+
+H4Lvd Weak Passive Decreas DAV RcEthic RcTot SUPV
+
+SHRIVEL
+
+H4 Negativ Decreas IAV SUPV
+
+SHRUNK
+
+H4Lvd Weak Passive Decreas DAV RcEthic RcTot SUPV
+
+SLOW#5
+
+H4Lvd Decreas DAV SUPV 3% verb: To decrease in speed or rate
+
+SUBSIDE
+
+H4 Negativ Active Complet Decreas IAV SUPV
+
+SUBTRACT
+
+H4 Negativ Active Decreas IAV SUPV
+
+SUNDER
+
+H4 Negativ Hostile Active Decreas IAV SUPV
+
+TATTER
+
+H4 Negativ Active Decreas IAV SUPV
+
+VANISH
+
+H4Lvd Negativ Active Decreas Perceiv IAV TranLw SUPV
+
+WANE
+
+H4 Negativ Passive Decreas IAV SUPV
+
+WEAKEN
+
+H4Lvd Negativ Weak Submit Fail Decreas IAV PowLoss PowTot SUPV
+
+WILT
+
+H4 Negativ Passive Complet NatrPro Decreas IAV SUPV
+
+WITHER
+
+H4Lvd Weak Passive Decreas IAV SUPV
+
+WORSEN
+
+H4 Negativ Weak Submit Passive Decreas IAV SUPV

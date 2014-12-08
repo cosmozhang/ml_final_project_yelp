@@ -18,14 +18,39 @@ def loadbinpoldic():
 
     return [posils] + [negals]
     
+def loadrevdic():
+  dwords = []
+  f = open('./inquirer_dic/Decreas.txt', 'r')
+  for line in f.readlines():
+    line = line.strip('\n')
+    if ' ' not in line and '#' in line:
+        line = line.split('#')[0]
+        dwords.append(line.lower())
+  dwords = filter(None, dwords)
+  f.close()
+
+  nwords = []
+  f = open('./inquirer_dic/NotLw.txt', 'r')
+  for line in f.readlines():
+    line = line.strip('\n')
+    if ' ' not in line and '#' in line:
+        line = line.split('#')[0]
+        nwords.append(line.lower())
+  nwords = filter(None, nwords)
+  f.close()
+  return list(set(dwords).union(nwords))
 
 def main():
     print "module test"
-    res = loadbinpoldic()
+    pres = loadbinpoldic()
     print "print some posi words"
-    print res[0][0], res[0][1], res[0][2]
+    print pres[0][0], pres[0][1], pres[0][2]
     print "print some nega words"
-    print res[1][0], res[1][1], res[1][2]
+    print pres[1][0], pres[1][1], pres[1][2]
+
+    rres = loadrevdic()
+    print "print some r words"
+    print rres[0:10]
 
 if __name__ == "__main__":
     main()
