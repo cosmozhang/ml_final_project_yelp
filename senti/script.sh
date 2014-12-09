@@ -2,8 +2,9 @@
 cd ~/Dropbox/Purdue/CS578/final_project/work/senti/
 export PYTHONPATH=${PYTHONPATH}:'pwd'
 
-for (( i=1; i<11; i++ ))
-do
-    echo $i
-    python sdfpreprocess.py ../data/dataset_500.data ${i}
-done
+
+python sdfpreprocess.py ../data/dataset_500_train_small.data train_small.data
+
+python sdfpreprocess.py ../data/dataset_500_val_small.data val_small.data
+
+python sdfpreprocess.py ../data/dataset_500_test_small.data test_small.data

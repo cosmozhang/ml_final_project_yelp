@@ -8,14 +8,15 @@ import codecs
 import cPickle as cpcl
 import sys
 import numpy
+import time
 from scipy.optimize import fmin_bfgs
 reload(sys)
 import nltk
 from random import uniform
 from poldicload import loadbinpoldic, loadrevdic #my own module
 from txttoformat import reformat
-from math import exp
-from math import log
+from math import exp, log
+from progressbar import *
 from nltk.stem import SnowballStemmer
 sys.setdefaultencoding("utf-8")
 
@@ -620,8 +621,6 @@ def testfunc(parsedrev, poldic, revdic, paradicN, paradicE):
         for nd in edfactorls:
         print nd.upvec, nd.downvec0, nd.downvec1
         '''
-
-
     print 'sentence sentiment is %s' % inference(nodels, paradicN, paradicE)
     
 
@@ -639,8 +638,8 @@ def main():
     poldic, revdic = loadbinpoldic(), loadrevdic() #poldic[0] is positive, poldic[1] is negative
     paradicN = [{}, {}, {}, {}, {}]
     paradicE = [{}, {}, {}, {}, {}]
-    print parsedrev[0][3][4]
-    # testfunc(parsedrev, poldic, revdic, paradicN, paradicE)
+    # print parsedrev[2][3][3][2]
+    testfunc(parsedrev, poldic, revdic, paradicN, paradicE)
                 
 
 if __name__ == "__main__":
