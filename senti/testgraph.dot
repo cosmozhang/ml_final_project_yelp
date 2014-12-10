@@ -1,0 +1,21 @@
+digraph  {
+  N_1 [label="This/DT-1"];
+  N_2 [label="is/VBZ-2"];
+  N_3 [label="the/DT-3"];
+  N_4 [label="best/JJS-4"];
+  N_5 [label="vegetarian/vegan/JJ-5"];
+  N_6 [label="restaurant/NN-6"];
+  N_8 [label="the/DT-8"];
+  N_9 [label="Phoenix/NNP-9"];
+  N_10 [label="valley/NN-10"];
+  N_11 [label="area/NN-11"];
+  N_6 -> N_1 [label="nsubj"];
+  N_6 -> N_2 [label="cop"];
+  N_6 -> N_3 [label="det"];
+  N_6 -> N_4 [label="amod"];
+  N_6 -> N_5 [label="amod"];
+  N_6 -> N_11 [label="prep_in"];
+  N_11 -> N_8 [label="det"];
+  N_11 -> N_9 [label="nn"];
+  N_11 -> N_10 [label="nn"];
+}

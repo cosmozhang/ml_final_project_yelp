@@ -93,7 +93,7 @@ class EdgeFactor(object):
         self.downvec1 = [None, None] #parent-child: ++, +-, -+, --
 
     def __str__(self):
-        return self.parent_word_baseform + '~' + self.child_word_baseform
+        return self.parent.word + '~' + self.child.word
 
     def calefv(self, paradicE):
         #initialization of parameters if it is not in the parameter dictionary
@@ -161,7 +161,7 @@ class Node(object):
         self.children = []
         self.parents = []
         # self.toparantrelation = None
-        # self.idx = idx
+        self.idx = None
         self.pol = None
         self.word = word
         self.parents_edgefactor = []
@@ -172,7 +172,7 @@ class Node(object):
         self.toparentrelation = {}
 
     def __str__(self):
-        return self.word
+        return self.word + ' ' + str(self.idx)
     
     def addparent(self, obj, relation):
         self.parents.append(obj)
@@ -193,12 +193,14 @@ class Node(object):
 
 #nodefactor objective function that we minimize by BFGS
 def ndobjf(x, sum_other, sumop, a, b, c, d):
-    try:
-        return - log((a + b*exp(sumop-x-sum_other))/(c + d*exp(sumop-x-sum_other))) + 0.5*x**2
+    # try:
+    return - log((a + b*exp(sumop-x-sum_other))/(c + d*exp(sumop-x-sum_other))) + 0.5*x**2
+    '''
     except:
         print a, b, c, d
         print 'nd', (a + b*exp(sumop-x-sum_other)), (c + d*exp(sumop-x-sum_other))
         # break
+    '''    
         
 #nodefactor deravative that we sent to BFGS
 def ndobjf_der(x, sum_other, sumop, a, b, c, d):
@@ -206,12 +208,14 @@ def ndobjf_der(x, sum_other, sumop, a, b, c, d):
 
 #edgefactor objective function that we minimize by BFGS
 def edobjf(x, sum_other, sumop1, sumop2, sumop3, a, b, c, d, e, f, g, h):
-    try:
-        return - log((a + b*exp(sumop1-x-sum_other) + c*exp(sumop2-x-sum_other) + d*exp(sumop2-x-sum_other))/(e + f*exp(sumop1-x-sum_other) + g*exp(sumop2-x-sum_other) + h*exp(sumop3-x-sum_other))) + 0.5*x**2
+    # try:
+    return - log((a + b*exp(sumop1-x-sum_other) + c*exp(sumop2-x-sum_other) + d*exp(sumop2-x-sum_other))/(e + f*exp(sumop1-x-sum_other) + g*exp(sumop2-x-sum_other) + h*exp(sumop3-x-sum_other))) + 0.5*x**2
+    '''
     except:
         print a, b, c, d, e, f, g, h
         print 'ed', (a + b*exp(sumop1-x-sum_other) + c*exp(sumop2-x-sum_other) + d*exp(sumop2-x-sum_other)), (e + f*exp(sumop1-x-sum_other) + g*exp(sumop2-x-sum_other) + h*exp(sumop3-x-sum_other))
         # break
+    '''
 
 #edgefactor deravative that we sent to BFGS
 def edobjf_der(x, sum_other, sumop1, sumop2, sumop3, a, b, c, d, e, f, g, h):
@@ -221,6 +225,7 @@ def simplebfs(nd):
     if nd.children != []:
         depthls = []
         for child in nd.children:
+            # print child
             if child.toplgod < nd.toplgod + 1:
                 child.toplgod = nd.toplgod +1
             depthls.append(simplebfs(child))
@@ -242,15 +247,20 @@ def word_r_check(wd, revd):
     else:
         return 'r-'
 
-def construct_tree(eg, stemmer, pold, revd):
-    wtp, depend = reformat(eg[3])
+def construct_tree(snt, snowball_stemmer, pold, revd):
+    wtp, depend = reformat(snt)
     # print wtp
     # print depend
+    # print '\n'
     nodels = []
-    ndfactorls = []
+    # ndfactorls = []
     for item in wtp:
         if item[0] != 'ROOT':
-            newnode = Node(item[0], item[1])
+            try:
+                newnode = Node(item[0], item[1])
+            except:
+                print snt, wtp
+                sys.exit()
         else:
             newnode = Node('rootnode', item[1])
         word_q = word_q_check(item[0], pold)
@@ -261,15 +271,23 @@ def construct_tree(eg, stemmer, pold, revd):
             #nodefactor initialize and attach them to the hidden varibles
             nodefactor = NodeFactor(newnode, word_q, word_r, word_baseform, item[1])         
             newnode.nodefactor = nodefactor
-            ndfactorls.append(nodefactor)
+            # ndfactorls.append(nodefactor)
+        # print 'node', newnode
         nodels.append(newnode) #nodels[0] is the root
-    
+
+    # for nd in nodels:
+        # print nd
     #tree construction part!
     edfactorls = []
+    # print '\n'
     for each in depend:
-        if each[0] != 'conj_and':
+        # print each
+        if each[0] != 'conj_and' and each[0] != 'rcmod' and each[0] != 'conj_but' and each[0] != 'conj_or' and each[0] != 'conj_as' and each[0] != 'conj_times' and  each[0] != 'vmod' and each[0] != 'conj_only' and each[0] != 'conj_just':
+            # print each
             parentidx = each[1][1]
+            nodels[parentidx].idx = parentidx
             childidx = each[2][1]
+            nodels[childidx].idx = childidx
             relation = each[0]
             # print "parent:", parentidx, nodels[parentidx]
             # print "child:", childidx, nodels[childidx]
@@ -289,14 +307,33 @@ def construct_tree(eg, stemmer, pold, revd):
             # print nodels[childidx].parents
     #BFS for topological order
     nodels[0].toplgod = 0
-    treedepth = simplebfs(nodels[0])
-    for nd in nodels: #remove non-informative words
-        if nd.toplgod == float('-inf'):
-            nodels.pop(nodels.index(nd))
-            ndfactorls.pop(ndfactorls.index(nd.nodefactor))
+    try:
+        treedepth = simplebfs(nodels[0]) #a simple bfs
+    except:
+        print depend
+        sys.exit()
+    cndfactorls = []
+    cnodels = filter(lambda x: x.toplgod != float('-inf'), nodels)
+    # for nd in cnodels:
+        # print nd, nd.toplgod
+    for nd in cnodels: #remove non-informative words
+        if nd.toplgod != 0: #non root node has factor
+            cndfactorls.append(nd.nodefactor)
+    # for nd in cndfactorls:
+        # print nd
     # print treedepth
-    nodels = sorted(nodels, key=lambda nd: nd.toplgod, reverse=True) #sort the nodelost based on nodes' topological order
-    return nodels, ndfactorls, edfactorls, treedepth
+    cnodels = sorted(cnodels, key=lambda nd: nd.toplgod, reverse=True) #sort the nodelist based on nodes' topological order
+    
+    for cnd in cnodels[:-1]:
+        cnd.parents = filter(lambda x: x.toplgod != float('-inf'), cnd.parents)
+        cnd.parents_edgefactor = filter(lambda x: x.parent.toplgod != float('-inf'), cnd.parents_edgefactor)
+            
+    cedfactorls = filter(lambda x: x.parent.toplgod != float('-inf') and x.child.toplgod != float('-inf'), edfactorls)
+    # print '\n'
+    # for nd in cndfactorls:
+        # print nd
+    # print len(cnodels)
+    return cnodels, cndfactorls, cedfactorls, treedepth
 
 
 def estimate(ndls, ndfactorls, edfactorls, paradicN, paradicE, rtlabel):
@@ -306,7 +343,13 @@ def estimate(ndls, ndfactorls, edfactorls, paradicN, paradicE, rtlabel):
     for nd in ndls[:-1]:
         prodvec = [1.0, 1.0] #factor to node information
         #if nd.nodefactor != None:
+        # try:
         nfvec = nd.nodefactor.calnfv(paradicN) # a vector of two values from the node to factor
+        '''
+        except:
+            for each in ndls:
+                print each.toplgod
+        '''        
         # print nfvec
         if nd.children_edgefactor != []:
             for childedf in nd.children_edgefactor:
@@ -325,7 +368,15 @@ def estimate(ndls, ndfactorls, edfactorls, paradicN, paradicE, rtlabel):
     #first deal with the root
     #type1
     if rtlabel == '+':
+        # try:
         ndls[-1].children_edgefactor[0].downvec0 = [1.0, 0.0]
+        '''
+        except:
+            print '\n'
+            for nd in ndls:
+                print nd
+            sys.exit()
+        '''    
     elif rtlabel == '-':
         ndls[-1].children_edgefactor[0].downvec0 = [0.0, 1.0]
     #type2
@@ -341,11 +392,23 @@ def estimate(ndls, ndfactorls, edfactorls, paradicN, paradicE, rtlabel):
             #parent, nodefactor product
             efvec = parentedf.calefv(paradicE)
             #marginalize here
+            # try:
             prodvec0[0] *= (parentedf.downvec0[0]*efvec[0] + parentedf.downvec0[1]*efvec[2]) #pos: ++ & -+
             prodvec0[1] *= (parentedf.downvec0[1]*efvec[3] + parentedf.downvec0[0]*efvec[1]) #neg: -- & +-
             prodvec1[0] *= (parentedf.downvec1[0]*efvec[0] + parentedf.downvec1[1]*efvec[2]) #pos: ++ & -+
             prodvec1[1] *= (parentedf.downvec1[1]*efvec[3] + parentedf.downvec1[0]*efvec[1]) #neg: -- & +-
-
+            '''    
+            except:
+                print '\n', nd
+                for parentedf in nd.parents_edgefactor:
+                    print parentedf, parentedf.downvec0, parentedf.downvec1, parentedf.parent.toplgod
+                for nd in reversed(ndls[:-1]):
+                    print nd, nd.toplgod
+                for end in edfactorls:
+                    print end
+                # sys.exit()
+            '''
+    
         if nd.children_edgefactor != []:
             for childedf in nd.children_edgefactor: #product of all up messages
                 efvec = childedf.calefv(paradicE)
@@ -596,51 +659,109 @@ def inference(ndls, paradicN, paradicE):
 
     return sntpolarity
 
-def testfunc(parsedrev, poldic, revdic, paradicN, paradicE):
+def test_func(valdata, paradicN, paradicE, poldic, revdic):
     snowball_stemmer = SnowballStemmer("english")
+    match_sum = 0.0
+    truep_sum = 0.0
+    prep_sum = 0.0
+    for eg in valdata:
+        tlb = eg[2]
+        pcount, ncount = 0, 0
+        for snt in eg[3]:
+            nodels, ndfactorls, edfactorls, treedepth = construct_tree(snt, snowball_stemmer, poldic, revdic)
+            if len(nodels) > 1:
+                sntp = inference(nodels, paradicN, paradicE)
+            elif len(nodels) <= 1:
+                tossacoin = uniform(0.0, 1.0)
+                if tossacoin > 0.5:
+                    sntp = '+'
+                elif tossacoin <= 0.5:
+                    sntp = '-'
+            if sntp == '+':
+                pcount += 1
+            elif sntp == '-':
+                ncount += 1
+        if pcount >= ncount: prelb = '+'
+        elif pcount < ncount: prelb = '-'
+
+        if prelb == tlb: match_sum += 1
+            
+        if prelb == '+': prep_sum += 1
+        if tlb == '+': truep_sum += 1
+        acc, recall, precision = 1.0*match_sum/len(valdata), 1.0*match_sum/truep_sum, 1.0*match_sum/prep_sum #calculate accuracy, recall, precision
+        fscore = 2*(recall*precision)/(recall + precision)
+    return acc, recall, precision, fscore
+
+def dlcrf_func(snowball_stemmer, eg, poldic, revdic, paradicN, paradicE):
+    
     #rev[0][3] is the review, and rev[0][2] is the polarity
     # eg = parsedrev[0]
-    for eg in parsedrev:
-        nodels, ndfactorls, edfactorls, treedepth = construct_tree(eg, snowball_stemmer, poldic, revdic)
-        '''
-        ## small print test
-        print 'ndfactorls'
-        for nd in ndfactorls:
-        print nd.downvec0, nd.downvec1
-        print 'edfactorls'
-        for nd in edfactorls:
-        print nd.upvec, nd.downvec0, nd.downvec1
-        '''
-        estimate(nodels, ndfactorls, edfactorls, paradicN, paradicE, '+')
-        '''
-        ## small print test
-        print 'ndfactorls'
-        for nd in ndfactorls:
-        print nd.downvec0, nd.downvec1
-        print 'edfactorls'
-        for nd in edfactorls:
-        print nd.upvec, nd.downvec0, nd.downvec1
-        '''
-    print 'sentence sentiment is %s' % inference(nodels, paradicN, paradicE)
-    
+    labl = eg[2]
+    # print labl
+    for snt in eg[3]:
+        nodels, ndfactorls, edfactorls, treedepth = construct_tree(snt, snowball_stemmer, poldic, revdic)
+        if len(nodels) > 1:
+            estimate(nodels, ndfactorls, edfactorls, paradicN, paradicE, labl)
+            
+    # print 'sentence sentiment is %s' % inference(nodels, paradicN, paradicE)
+    # print paradicE, paradicN
+
+def train(paradicN, paradicE, poldic, revdic, traindata, epochs, valdata):
+    snowball_stemmer = SnowballStemmer("english")
+    prevvaliacc = 0.0
+    epoch = 1
+    valiaccls = []
+    while True:
+        time_b_v = time.clock()
+        print "***************\nthis is epoch %d of epochs %d" % (epoch, epochs)
+        widgets = ['Progress: ', Percentage(), ' ', Bar(marker=RotatingMarker()), ' ', ETA(), ' ', FileTransferSpeed()]
+        pbar = ProgressBar(widgets=widgets, maxval=len(traindata)).start()
+        for idx in range(len(traindata)):
+            eg = traindata[idx]
+            #print eg
+            dlcrf_func(snowball_stemmer, eg, poldic, revdic, paradicN, paradicE)
+            pbar.update(idx + 1)
+        pbar.finish()               
+
+        valiacc, valirecall, valiprecision, valifscore = test_func(valdata, paradicN, paradicE, poldic, revdic)
+        valiaccls.append(valiacc)
+        print "\naccuracy, recall, precision, fscore on validation is %0.2f%%, %0.2f%%, %0.2f%%, %0.2f%%" % (valiacc*100, valirecall*100, valiprecision*100, valifscore*100)
+        if epoch > epochs: #early stop creterion
+            if (epoch - epochs)%1 == 0:
+                if valiacc <= prevvaliacc: break
+        prevvaliacc = valiacc
+        # print "\nused time in this epoch is %f\n*****************" % (time.clock() - time_b_v) #timing
+        epoch += 1
+    return (epoch, valiaccls)
 
 def main():
-    if len(sys.argv) != 2:
-        print 'Usage: %s [datafile path]' % sys.argv[0]
+    if len(sys.argv) != 5:
+        print 'Usage: %s [traindatafile path] [validationdatafile path] [testdatafile path] [epochs]' % sys.argv[0]
         sys.exit("please provide data file path")
-    
-    datafilename = sys.argv[1]
+    epochs = int(sys.argv[4])
+    trainfilename, valfilename, testfilename = sys.argv[1], sys.argv[2], sys.argv[3]
     # f = codecs.open(datafilename, 'rb', encoding="utf-8")
-    f=open(datafilename, 'rb')
-    parsedrev = cpcl.load(f)
+    f=open(trainfilename, 'rb')
+    traindata = cpcl.load(f)
     f.close()
+    
+    f=open(valfilename, 'rb')
+    valdata = cpcl.load(f)
+    f.close()
+
+    f=open(testfilename, 'rb')
+    testdata = cpcl.load(f)
+    f.close()
+
     #load dictionaries
     poldic, revdic = loadbinpoldic(), loadrevdic() #poldic[0] is positive, poldic[1] is negative
     paradicN = [{}, {}, {}, {}, {}]
     paradicE = [{}, {}, {}, {}, {}]
     # print parsedrev[2][3][3][2]
-    testfunc(parsedrev, poldic, revdic, paradicN, paradicE)
-                
+    # testfunc(parsedrev, poldic, revdic, paradicN, paradicE)
+    train(paradicN, paradicE, poldic, revdic, traindata, epochs, valdata)
+    fnlacc, fnlrecall, fnlprecision, fnlfscore = test_func(testdata, paradicN, paradicE, poldic, revdic)
+    print "\naccuracy, recall, precision, fscore on test is %0.2f%%, %0.2f%%, %0.2f%%, %0.2f%%" % (fnlacc*100, fnlrecall*100, fnlprecision*100, fnlfscore*100)
 
 if __name__ == "__main__":
     main()

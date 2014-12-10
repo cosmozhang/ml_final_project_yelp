@@ -21,8 +21,7 @@ def sdfprocess(rvdata):
     parser=StanfordParser(path_to_jar='/home/cosmo/Dropbox/Purdue/nlp/stanford-corenlp-full-2014-08-27/stanford-corenlp-3.4.1.jar', path_to_models_jar='/home/cosmo/Dropbox/Purdue/nlp/stanford-corenlp-full-2014-08-27/stanford-corenlp-3.4.1-models.jar', model_path='edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz', java_options='-mx15000m')
     sdfdata=[]
     cnn = 0
-    widgets = ['Progress: ', Percentage(), ' ', Bar(marker=RotatingMarker()),
-               ' ', ETA(), ' ', FileTransferSpeed()]
+    widgets = ['Progress: ', Percentage(), ' ', Bar(marker=RotatingMarker()), ' ', ETA(), ' ', FileTransferSpeed()]
     pbar = ProgressBar(widgets=widgets, maxval=len(rvdata)).start()
     for eg in rvdata:
         # if cnn%100 == 0: print "%f%% of document %d finished" % (cnn*100*1.0/len(rvdata), partidx+1)

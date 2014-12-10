@@ -1,0 +1,17 @@
+digraph  {
+  N_1 [label="These/DT-1"];
+  N_2 [label="people/NNS-2"];
+  N_3 [label="are/VBP-3"];
+  N_4 [label="making/VBG-4"];
+  N_5 [label="money/NN-5"];
+  N_7 [label="folks/NNS-7"];
+  N_9 [label="no/DT-9"];
+  N_10 [label="pallet/NN-10"];
+  N_2 -> N_1 [label="det"];
+  N_4 -> N_2 [label="nsubj"];
+  N_4 -> N_3 [label="aux"];
+  N_4 -> N_5 [label="dobj"];
+  N_5 -> N_7 [label="prep_of"];
+  N_7 -> N_10 [label="prep_with"];
+  N_10 -> N_9 [label="neg"];
+}
