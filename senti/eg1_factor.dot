@@ -1,0 +1,58 @@
+graph  {
+  rankdir = "LR";		 
+  N_1 ;
+  N_2 ;
+  N_3 ;
+  N_4 ;
+  N_5 ;
+  N_6 ;
+  N_8 ;
+  N_9 ;
+  N_10 ;
+  N_11 ;
+  N_0 [label="ROOT/S", color=red, shape=diamond, style=filled];
+
+  nf_1 [label="This/DT", shape=box, color=green, style=filled];
+  nf_2 [label="is/VBZ", shape=box, color=green, style=filled];
+  nf_3 [label="the/DT", shape=box, color=green, style=filled];
+  nf_4 [label="best/JJS", shape=box, color=green, style=filled];
+  nf_5 [label="vegetarian/vegan/JJ", shape=box, color=green, style=filled];
+  nf_6 [label="restaurant/NN", shape=box, color=green, style=filled];
+  nf_8 [label="the/DT", shape=box, color=green, style=filled];
+  nf_9 [label="Phoenix/NNP", shape=box, color=green, style=filled];
+  nf_10 [label="valley/NN", shape=box, color=green, style=filled];
+  nf_11 [label="area/NN", shape=box, color=green, style=filled];
+
+  ef_1 [label="nsubj", shape=box, color=blue, style=filled];
+  ef_2 [label="cop", shape=box, color=blue, style=filled];
+  ef_3 [label="det", shape=box, color=blue, style=filled];
+  ef_4 [label="amod", shape=box, color=blue, style=filled];
+  ef_5 [label="amod", shape=box, color=blue, style=filled];
+  ef_6 [label="prep_in", shape=box, color=blue, style=filled];
+  ef_7 [label="det", shape=box, color=blue, style=filled];
+  ef_8 [label="nn", shape=box, color=blue, style=filled];
+  ef_9 [label="nn", shape=box, color=blue, style=filled];
+  ef_0 [label="SENTENCE", shape=box, color=blue, style=filled];
+  
+  N_0 -- ef_0 -- N_6 ;
+  N_6 -- ef_1 -- N_1 ;
+  N_6 -- ef_2 -- N_2 ;
+  N_6 -- ef_3 --N_3 ;
+  N_6 -- ef_4 --N_4 ;
+  N_6 -- ef_5 --N_5 ;
+  N_6 -- ef_6 --N_11 ;
+  N_11 -- ef_7 --N_8 ;
+  N_11 -- ef_8 --N_9 ;
+  N_11 -- ef_9 --N_10 ;
+
+  nf_1 -- N_1 ;
+  nf_2 -- N_2 ;
+  nf_3 -- N_3 ;
+  nf_4 -- N_4 ;
+  nf_5 -- N_5 ;
+  nf_6 -- N_6 ;
+  nf_8 -- N_8 ;
+  nf_9 -- N_9 ;
+  nf_10 -- N_10 ;
+  nf_11 -- N_11 ;
+}

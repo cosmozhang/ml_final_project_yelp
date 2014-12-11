@@ -18,6 +18,7 @@ bizs = {line[1] for line in ubRatings}
 usrDict = dict(zip(usrs, range(len(usrs))))
 bizDict = dict(zip(bizs, range(len(bizs))))
 
+# Social network
 # Adjacency matrix (0-1, asymmetric)
 network = np.zeros((len(usrs), len(usrs)), dtype = 'int')
 for u1 in uuNetwork.keys():
@@ -25,12 +26,12 @@ for u1 in uuNetwork.keys():
 		network[usrDict[u1], usrDict[u2]] = 1
 # float(np.sum(network)) / np.prod(network.shape) # Sparsity
 
-uuNetworkNew = {usrDict[key]:uuNetwork[key] for key in uuNetwork.keys()}
-
 # ind =[]
 # for i in range(network.shape[0]):
 # 	if np.sum(network[i,:]) + np.sum(network[:,i]) == 0:
 # 		ind.append(i)
+
+uuNetworkNew = {usrDict[key]:uuNetwork[key] for key in uuNetwork.keys()}
 
 # Rating matrix
 ratings = np.zeros((len(usrs), len(bizs)))
@@ -41,6 +42,21 @@ for line in ubRatings:
 		ratings[usrDict[line[0]], bizDict[line[1]]] = -1
 # np.sum(ratings) / np.prod(ratings.shape) # Sparsity
 
+# Redefine edges according to taste similarity
+networkTaste = np.zeros((len(usrs), len(usrs)), dtype = 'int')
+for i in range(len(usrs)):
+	for j in range(len(usrs)):
+		r1 = ratings[i,:]
+		r2 = ratings[j,:]
+		num = min(np.sum(r1 != 0), np.sum(r2 != 0)) # Number of common businesses
+		if num > 0 and np.sum(r1 * r2) / float(num) > 0.50: # Threshold value
+			networkTaste[i,j] = 1
+
+out = open('networkTaste.data', 'wb')
+cPickle.dump(networkTaste, out)
+f.close()
+
+# Training
 train = rand.binomial(1, .7, ratings.shape) * ratings
 trainCopy = copy.deepcopy(train)
 
