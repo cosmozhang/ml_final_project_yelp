@@ -35,22 +35,269 @@
 </h1>
 
 <h2>
-<a id="data-processing" class="anchor" href="#data-processing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Data Processing</h2>
+<a id="pre-processing" class="anchor" href="#pre-processing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Pre-processing</h2>
+
+<h3>
+<a id="analysis" class="anchor" href="#analysis" aria-hidden="true"><span class="octicon octicon-link"></span></a>Analysis</h3>
 
 <ul>
 <li>Yelp Dataset Challenge</li>
-<li>Comprises 42,153 businesses, 320,002 business attributes,
-31,617 check-in sets, 252,898 users, 403,210 tips, 1,125,458
-reviews, as well as a social network consisting of 955,999 edges.</li>
-<li>Focus on businesses with enough ratings among Scottsdale,
-Tempe, and Phoenix</li>
-<li>We would consider 4-star and 5-star rating as positive, while
-1-star and 2-star rating as negative.</li>
+<li>Comprises 42,153 businesses, 320,002 business attributes, 31,617 check-in sets, 252,898 users, 403,210 tips, 1,125,458 reviews, as well as a social network consisting of 955,999 edges.</li>
+<li>Focus on businesses with enough ratings among Scottsdale, Tempe, and Phoenix</li>
+<li>We would consider 4-star and 5-star rating as positive, while 1-star and 2-star rating as negative.</li>
 </ul>
 
-<p><img src="images/uzcounts.png?raw=true" alt="Usercounts"> </p>
+<h3>
+<a id="usercounts" class="anchor" href="#usercounts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usercounts</h3>
 
-<p><img src="images/bizcounts.png?raw=true" alt="Bizcounts"></p>
+<p><img src="https://github.com/cosmozhang/ml_final_project_yelp/blob/master/images/uzcounts.png?raw=true" alt="Usercounts" title="Usercounts"> </p>
+
+<h3>
+<a id="bizcounts" class="anchor" href="#bizcounts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Bizcounts</h3>
+
+<p><img src="https://github.com/cosmozhang/ml_final_project_yelp/blob/master/images/bizcounts.png?raw=true" alt="Bizcounts" title="Bizcounts"> </p>
+
+<h2>
+<a id="naive-bayes-classifier" class="anchor" href="#naive-bayes-classifier" aria-hidden="true"><span class="octicon octicon-link"></span></a>Naive Bayes Classifier</h2>
+
+<h3>
+<a id="intuition" class="anchor" href="#intuition" aria-hidden="true"><span class="octicon octicon-link"></span></a>Intuition</h3>
+
+<ul>
+<li>Goal: To predict the user’s rating to a particular business individually</li>
+<li>Available information: user’s ratings and reviews on other businesses, and business’s ratings and reviews from other users</li>
+<li>Assumption: Independence among features given rating.</li>
+</ul>
+
+<h3>
+<a id="probabilistic-model" class="anchor" href="#probabilistic-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>Probabilistic model</h3>
+
+<ul>
+<li>Rating:C = {+, −}, User U, Business B, Review feature R.</li>
+<li>Basic model: P(C|U, B) = P(C) × P(U|C) × P(B|C) / P(U, B)</li>
+</ul>
+
+<h3>
+<a id="results" class="anchor" href="#results" aria-hidden="true"><span class="octicon octicon-link"></span></a>Results</h3>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Accuracy</th>
+<th>Recall</th>
+<th>Precision</th>
+<th>F-score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Testset</td>
+<td>87.97%</td>
+<td>97.77%</td>
+<td>89.74%</td>
+<td>93.59%</td>
+</tr>
+</tbody>
+</table>
+
+<h3>
+<a id="future-orientation" class="anchor" href="#future-orientation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Future Orientation</h3>
+
+<ul>
+<li>Take into account common features of user’s review on other
+businesses and business’s review from other users</li>
+<li>Advanced model: P(C|U, B, R) = P(C) × P(U|C) × P(B|C) × P(R|C) / P(U, B, R)</li>
+</ul>
+
+<h2>
+<a id="natural-language-processing" class="anchor" href="#natural-language-processing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Natural Language Processing</h2>
+
+<h3>
+<a id="dependency-tree" class="anchor" href="#dependency-tree" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dependency Tree</h3>
+
+<p>The Stanford dependencies provide a representation of grammatical relations between words in a sentence. They have been designed to be easily understood and effectively used by people who want to extract textual relations.</p>
+
+<ul>
+<li>NLTK package for sentence tokenize for the entire review text in a
+(user-business) pair example.</li>
+<li>Stanford CoreNLP package with a self-modified python module for
+sentence parsing</li>
+</ul>
+
+<h3>
+<a id="parsed-sentence-example-1" class="anchor" href="#parsed-sentence-example-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parsed Sentence Example 1</h3>
+
+<p><img src="https://github.com/cosmozhang/ml_final_project_yelp/blob/master/images/deptree1.png?raw=true" alt="deptree1"></p>
+
+<h3>
+<a id="parsed-sentence-example-2" class="anchor" href="#parsed-sentence-example-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parsed Sentence Example 2</h3>
+
+<p><img src="https://github.com/cosmozhang/ml_final_project_yelp/blob/master/images/deptree2.png?raw=true" alt="deptree1"></p>
+
+<h3>
+<a id="dynamic-latent-hidden-conditional-random-field" class="anchor" href="#dynamic-latent-hidden-conditional-random-field" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dynamic Latent (Hidden) Conditional Random Field</h3>
+
+<p>Conditional random fields (CRFs) are a class of statistical modelling
+method often applied in pattern recognition and machine learning,
+where they are used for structured prediction.</p>
+
+<ul>
+<li>Dynamic: The structures are variable among sentences in training
+examples.</li>
+<li>Latent (Hidden): Some labels are observable, while some are
+unknown.</li>
+</ul>
+
+<h3>
+<a id="from-tree-graph-to-factor-graph" class="anchor" href="#from-tree-graph-to-factor-graph" aria-hidden="true"><span class="octicon octicon-link"></span></a>From Tree Graph to Factor Graph</h3>
+
+<p><img src="https://github.com/cosmozhang/ml_final_project_yelp/blob/master/images/graph.png?raw=true" alt="graph"></p>
+
+<p><img src="https://github.com/cosmozhang/ml_final_project_yelp/blob/master/images/factor.png?raw=true" alt="factor"></p>
+
+<h3>
+<a id="known-and-unknown-labels" class="anchor" href="#known-and-unknown-labels" aria-hidden="true"><span class="octicon octicon-link"></span></a>Known and Unknown Labels</h3>
+
+<ul>
+<li>y is the root label of the entire tree, which has a known label propagated from the rating.</li>
+<li>w◦s are the labels of nodes, which are the roots of subtrees, whose labels are unknown.</li>
+</ul>
+
+<h3>
+<a id="belief-propagation-algorithm" class="anchor" href="#belief-propagation-algorithm" aria-hidden="true"><span class="octicon octicon-link"></span></a>Belief Propagation Algorithm</h3>
+
+<p>Belief propagation, also known as sum-product message passing is a message passing algorithm for performing inference on graphical models. It calculates the marginal distribution for each unobserved node, conditional on any observed nodes.</p>
+
+<p><img src="https://github.com/cosmozhang/ml_final_project_yelp/blob/master/images/msgps1.png?raw=true" alt="msgps1">
+<img src="https://github.com/cosmozhang/ml_final_project_yelp/blob/master/images/msgps2.png?raw=true" alt="msgps1">
+<img src="https://github.com/cosmozhang/ml_final_project_yelp/blob/master/images/msgps3.png?raw=true" alt="msgps1">
+<img src="https://github.com/cosmozhang/ml_final_project_yelp/blob/master/images/msgps4.png?raw=true" alt="msgps1"></p>
+
+<h3>
+<a id="breadth-first-search" class="anchor" href="#breadth-first-search" aria-hidden="true"><span class="octicon octicon-link"></span></a>Breadth First Search</h3>
+
+<p>Breadth first search (BFS) is a graph search algorithm that begins at the root node and explores all the neighboring nodes.</p>
+
+<ul>
+<li>Then we can sort the nodes in a Topological Order (Levels) from the root.</li>
+<li>Belief propagation first from root to all nodes.</li>
+<li>Second from leaves to the root in a reversed order.</li>
+</ul>
+
+<h3>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Features</h3>
+
+<p>Node factors and edge factors have different features.</p>
+
+<ul>
+<li>Node Factor: f(w_n), f(w_n, q_n), f(w_n, tag_n), f(w_n, word_n), f(w_n, q_n, r_n)</li>
+<li>Edge Factor: f(w_n, w_n_h), f(w_n, w_n_h, r_n_h), f(w_n, w_n_h, r_n_h, q_n_h), f(w_n, word_n_h), f(w_n, word_n)
+w is the label, q is the polarity of word, tag is the part of speech tag,
+word is the stemmed form of the word.</li>
+<li>q dictionary from Bin Liu.</li>
+<li>r dictionary as a combination of “NotLw" and “Decreas" from inquirer.</li>
+<li>word by NLTK snowball stemmer using English grammar</li>
+</ul>
+
+<h3>
+<a id="maximum-a-posteriori" class="anchor" href="#maximum-a-posteriori" aria-hidden="true"><span class="octicon octicon-link"></span></a>Maximum a Posteriori</h3>
+
+<ul>
+<li>objective function</li>
+<li>partial derivative</li>
+</ul>
+
+<h3>
+<a id="stochastic-bfgs-optimization" class="anchor" href="#stochastic-bfgs-optimization" aria-hidden="true"><span class="octicon octicon-link"></span></a>Stochastic BFGS Optimization</h3>
+
+<p>The BFGS method approximates Newton’s method, a class of hill-climbing optimization techniques that seeks a stationary point of a (preferably twice continuously differentiable) function.</p>
+
+<ul>
+<li>We ran it in a stochastic fashion for each parameter, in each factor, in each sentence, and in each example.</li>
+<li>It converges very fast.</li>
+</ul>
+
+<h3>
+<a id="majority-vote" class="anchor" href="#majority-vote" aria-hidden="true"><span class="octicon octicon-link"></span></a>Majority Vote</h3>
+
+<ul>
+<li>We used the same belief propagation algorithm for inference, to get the label of the root of the tree, representing the polarity of the whole sentence.</li>
+<li>Then we applied a simple majority vote on all the sentences in a review to get the predicated label of the entire review.</li>
+</ul>
+
+<h3>
+<a id="final-result" class="anchor" href="#final-result" aria-hidden="true"><span class="octicon octicon-link"></span></a>Final Result</h3>
+
+<p>The results were shown below after our algorithm ran 6 iterations on
+the training set.</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Accuracy</th>
+<th>Recall</th>
+<th>Precision</th>
+<th>F-score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Validation</td>
+<td>90.11%</td>
+<td>100.00%</td>
+<td>90.11%</td>
+<td>94.80%</td>
+</tr>
+<tr>
+<td>Testset</td>
+<td>88.99%</td>
+<td>100.00%</td>
+<td>88.99%</td>
+<td>94.17%</td>
+</tr>
+</tbody>
+</table>
+
+<h2>
+<a id="social-network-analysis" class="anchor" href="#social-network-analysis" aria-hidden="true"><span class="octicon octicon-link"></span></a>Social Network Analysis</h2>
+
+<h3>
+<a id="network-visualization" class="anchor" href="#network-visualization" aria-hidden="true"><span class="octicon octicon-link"></span></a>Network Visualization</h3>
+
+<p><img src="https://github.com/cosmozhang/ml_final_project_yelp/blob/master/images/sonet.png?raw=true" alt="sonet"></p>
+
+<p><img src="https://github.com/cosmozhang/ml_final_project_yelp/blob/master/images/DegreeDist.png?raw=true" alt="DegreeDist"></p>
+
+<h3>
+<a id="network-statistics" class="anchor" href="#network-statistics" aria-hidden="true"><span class="octicon octicon-link"></span></a>Network Statistics</h3>
+
+<ul>
+<li>|V| = 9186, |E| = 36737</li>
+<li>Average degree: 14.877</li>
+<li>Average path length: 3.281</li>
+<li>Average clustering</li>
+<li>coefficient: 0.342</li>
+<li>Diameter: 10</li>
+<li>Modularity: 0.396</li>
+<li>Number of communities: 92</li>
+</ul>
+
+<h3>
+<a id="ratingsentiment-prediction" class="anchor" href="#ratingsentiment-prediction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Rating/Sentiment Prediction</h3>
+
+<ul>
+<li>Intuition: Users’ rating behaviors are correlated with their friends’ rating behaviors (homophily and social influence).</li>
+<li>Mathematically, user ui’s rating to business b_k is modeled</li>
+<li>Augment edges by exploiting observed rating information.</li>
+<li>Algorithm: Impute missing ratings by iteratively applying the model.</li>
+</ul>
+
+<h3>
+<a id="finally" class="anchor" href="#finally" aria-hidden="true"><span class="octicon octicon-link"></span></a>Finally</h3>
+
+<p><img src="https://github.com/cosmozhang/ml_final_project_yelp/blob/master/images/Thank-You.png?raw=true" alt="Thank-You"></p>
       </section>
     </div>
 
