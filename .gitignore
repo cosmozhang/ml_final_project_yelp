@@ -1,5 +1,4 @@
 *.csv
-*.png
 *.data
 senti/treedata/*
 senti/scripts/*
