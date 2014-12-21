@@ -255,7 +255,7 @@ def construct_tree(snt, snowball_stemmer, pold, revd):
     nodels = []
     # ndfactorls = []
     for item in wtp:
-        if item[0] != 'ROOT':
+        if item[0] != 'ROOTNODE':
             try:
                 newnode = Node(item[0], item[1])
             except:
@@ -267,7 +267,7 @@ def construct_tree(snt, snowball_stemmer, pold, revd):
         # print word_q
         word_r = word_r_check(item[0], revd) 
         word_baseform = snowball_stemmer.stem(item[0])
-        if item[0] != 'ROOT': 
+        if item[0] != 'ROOTNODE': 
             #nodefactor initialize and attach them to the hidden varibles
             nodefactor = NodeFactor(newnode, word_q, word_r, word_baseform, item[1])         
             newnode.nodefactor = nodefactor
@@ -282,7 +282,7 @@ def construct_tree(snt, snowball_stemmer, pold, revd):
     # print '\n'
     for each in depend:
         # print each
-        if each[0] != 'conj_and' and each[0] != 'rcmod' and each[0] != 'conj_but' and each[0] != 'conj_or' and each[0] != 'conj_as' and each[0] != 'conj_times' and  each[0] != 'vmod' and each[0] != 'conj_only' and each[0] != 'conj_just':
+        if each[0] != 'rcmod' and each[1][1] != each[2][1] and each[0] != 'conj_and' and each[0] != 'conj_but' and each[0] != 'conj_or' and each[0] != 'conj_as' and each[0] != 'conj_times' and  each[0] != 'vmod' and each[0] != 'conj_only' and each[0] != 'conj_just' and each[0] != 'conj_negcc' and each[0] != 'conj_less':
             # print each
             parentidx = each[1][1]
             nodels[parentidx].idx = parentidx
@@ -634,7 +634,13 @@ def inference(ndls, paradicN, paradicE):
     for nd in ndls[:-1]:
         prodvec = [1.0, 1.0] #factor to node information
         #if nd.nodefactor != None:
-        nfvec = nd.nodefactor.calnfv(paradicN) # a vector of two values from the node to factor
+        try:
+            nfvec = nd.nodefactor.calnfv(paradicN) # a vector of two values from the node to factor
+        except:
+            print "this node is ", nd
+            for nd in ndls:
+                print nd
+            sys.exit()
         # print nodevec
         if nd.children_edgefactor != []:
             for childedf in nd.children_edgefactor:
@@ -662,8 +668,10 @@ def inference(ndls, paradicN, paradicE):
 def test_func(valdata, paradicN, paradicE, poldic, revdic):
     snowball_stemmer = SnowballStemmer("english")
     match_sum = 0.0
-    truep_sum = 0.0
+    actup_sum = 0.0
     prep_sum = 0.0
+    tp = 0.0
+    record =[]
     for eg in valdata:
         tlb = eg[2]
         pcount, ncount = 0, 0
@@ -684,13 +692,16 @@ def test_func(valdata, paradicN, paradicE, poldic, revdic):
         if pcount >= ncount: prelb = '+'
         elif pcount < ncount: prelb = '-'
 
-        if prelb == tlb: match_sum += 1
-            
+        if prelb == tlb: 
+            match_sum += 1
+            if prelb == '+':
+                tp += 1
         if prelb == '+': prep_sum += 1
-        if tlb == '+': truep_sum += 1
-        acc, recall, precision = 1.0*match_sum/len(valdata), 1.0*match_sum/truep_sum, 1.0*match_sum/prep_sum #calculate accuracy, recall, precision
-        fscore = 2*(recall*precision)/(recall + precision)
-    return acc, recall, precision, fscore
+        if tlb == '+': actup_sum += 1
+        record.append((tlb, prelb))
+    acc, recall, precision = 1.0*match_sum/len(valdata), 1.0*tp/actup_sum, 1.0*tp/prep_sum #calculate accuracy, recall, precision
+    fscore = 2.0*(recall*precision)/(recall + precision)
+    return acc, recall, precision, fscore, record
 
 def dlcrf_func(snowball_stemmer, eg, poldic, revdic, paradicN, paradicE):
     
@@ -706,12 +717,12 @@ def dlcrf_func(snowball_stemmer, eg, poldic, revdic, paradicN, paradicE):
     # print 'sentence sentiment is %s' % inference(nodels, paradicN, paradicE)
     # print paradicE, paradicN
 
-def train(paradicN, paradicE, poldic, revdic, traindata, epochs, valdata):
+def train(paradicN, paradicE, poldic, revdic, traindata, epochs, valdata, valfilename):
     snowball_stemmer = SnowballStemmer("english")
     prevvaliacc = 0.0
     epoch = 1
     valiaccls = []
-    while True:
+    while epoch <= epochs: #True:
         time_b_v = time.clock()
         print "***************\nthis is epoch %d of epochs %d" % (epoch, epochs)
         widgets = ['Progress: ', Percentage(), ' ', Bar(marker=RotatingMarker()), ' ', ETA(), ' ', FileTransferSpeed()]
@@ -723,7 +734,7 @@ def train(paradicN, paradicE, poldic, revdic, traindata, epochs, valdata):
             pbar.update(idx + 1)
         pbar.finish()               
 
-        valiacc, valirecall, valiprecision, valifscore = test_func(valdata, paradicN, paradicE, poldic, revdic)
+        valiacc, valirecall, valiprecision, valifscore, record = test_func(valdata, paradicN, paradicE, poldic, revdic)
         valiaccls.append(valiacc)
         print "\naccuracy, recall, precision, fscore on validation is %0.2f%%, %0.2f%%, %0.2f%%, %0.2f%%" % (valiacc*100, valirecall*100, valiprecision*100, valifscore*100)
         if epoch > epochs: #early stop creterion
@@ -732,6 +743,11 @@ def train(paradicN, paradicE, poldic, revdic, traindata, epochs, valdata):
         prevvaliacc = valiacc
         # print "\nused time in this epoch is %f\n*****************" % (time.clock() - time_b_v) #timing
         epoch += 1
+    rvfilename = valfilename.replace(".data", "")
+    fgh = open(rvfilename + "record.csv", 'w')
+    for each in record:
+        fgh.write(str(each[0]) + " " + str(each[1]) + "\n")
+    fgh.close()
     return (epoch, valiaccls)
 
 def main():
@@ -757,10 +773,13 @@ def main():
     poldic, revdic = loadbinpoldic(), loadrevdic() #poldic[0] is positive, poldic[1] is negative
     paradicN = [{}, {}, {}, {}, {}]
     paradicE = [{}, {}, {}, {}, {}]
-    # print parsedrev[2][3][3][2]
-    # testfunc(parsedrev, poldic, revdic, paradicN, paradicE)
-    train(paradicN, paradicE, poldic, revdic, traindata, epochs, valdata)
-    fnlacc, fnlrecall, fnlprecision, fnlfscore = test_func(testdata, paradicN, paradicE, poldic, revdic)
+    train(paradicN, paradicE, poldic, revdic, traindata, epochs, valdata, valfilename)
+    fnlacc, fnlrecall, fnlprecision, fnlfscore, record= test_func(testdata, paradicN, paradicE, poldic, revdic)
+    rtfilename = testfilename.replace(".data", "")
+    fgh = open(rtfilename + "record.csv", 'wb')
+    for each in record:
+        fgh.write(str(each[0]) + " " + str(each[1]) + "\n")
+    fgh.close()
     print "\naccuracy, recall, precision, fscore on test is %0.2f%%, %0.2f%%, %0.2f%%, %0.2f%%" % (fnlacc*100, fnlrecall*100, fnlprecision*100, fnlfscore*100)
 
 if __name__ == "__main__":

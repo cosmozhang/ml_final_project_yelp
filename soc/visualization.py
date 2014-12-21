@@ -18,11 +18,11 @@ h = open('../data/user_user_network_500.data', 'r')
 network = cPickle.load(h)
 h.close()
 
-h = open('../data/dataset_500_train.data', 'r')
+h = open('../data/dataset_500_train_small.data', 'r')
 train_list = cPickle.load(h)
 h.close()
 
-h = open('../data/dataset_500_test.data', 'r')
+h = open('../data/dataset_500_test_small.data', 'r')
 test_list = cPickle.load(h)
 h.close()
 
@@ -73,30 +73,47 @@ for line in test_list:
     test[userD[line[0]], bizD[line[1]]] = -1
 # np.sum(ratings) / np.prod(ratings.shape) # Sparsity
 
-# # Redefine edges according to taste similarity
-# networkTaste = np.zeros((len(usrs), len(usrs)), dtype = 'int')
-# for i in range(len(usrs)):
-# 	for j in range(len(usrs)):
-# 		r1 = ratings[i,:]
-# 		r2 = ratings[j,:]
-# 		num = min(np.sum(r1 != 0), np.sum(r2 != 0)) # Number of common businesses
-# 		if num > 0 and np.sum(r1 * r2) / float(num) > 0.50: # Threshold value
-# 			networkTaste[i,j] = 1
-
 # out = open('networkTaste.data', 'wb')
 # cPickle.dump(networkTaste, out)
 # f.close()
 
 # Training
-train_copy = copy.deepcopy(train)
+def predict(G, maxIter):
+  train_copy = copy.deepcopy(train)
+  for k in range(maxIter):  # Number of passes
+    for u in G.keys():
+      friends = G[u]
+      if len(friends) > 0:
+        for b in range(len(bizs)):
+          if train_copy[u,b] == 0:
+            train[u,b] = np.mean(train[friends, b])
+  # Sentiment prediction accuracy
+  return np.sum((2 * (train > 0) - 1) * np.abs(test) != test) / float(np.sum(test != 0))
 
-for k in range(100):  # Number of passes
-  for u in G.keys():
-    friends = G[u]
-    if len(friends) > 0:
-      for b in range(len(bizs)):
-        if train_copy[u,b] == 0:
-          train[u,b] = np.mean(train[friends, b])
+print predict(G, maxIter = 100)
 
-# Evaluation
-np.sum((train * np.abs(test) > 0) == test) / float(np.sum(test != 0))
+# Redefine edges according to taste similarity
+T = np.zeros((len(users), len(users)))
+for b in range(len(bizs)) :
+  samePos = np.nonzero(train[:,b] == 1)[0]
+  sameNeg = np.nonzero(train[:,1] == -1)[0]
+  if len(samePos) > 1:
+    for i in range(len(samePos)):
+      for j in range(i + 1, len(samePos)):
+        T[i,j] += 100
+        T[j,i] += 1
+  if len(sameNeg) > 1:
+    for i in range(len(sameNeg)):
+      for j in range(i + 1, len(sameNeg)):
+        T[i,j] += 1
+        T[j,i] += 1
+
+TG = dict(zip(userD.values(), [[] for u in users]))
+for i in range(T.shape[0]):
+  for j in range(T.shape[1]):
+    if T[i,j] >= 5:
+      TG[i].append(j)
+      TG[j].append(i)
+
+print predict(TG, maxIter = 100)
+

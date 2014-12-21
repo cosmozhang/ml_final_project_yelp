@@ -1,6 +1,6 @@
 ## Cosmo Zhang @ Purdue 10/2014
 ## cs578 final project on yelp
-## Filename:combine.py
+## Filename:datapartition.py
 ## -*- coding: utf-8 -*-
 
 import cPickle as cpcl

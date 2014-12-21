@@ -7,7 +7,7 @@ import sys
 def reformat(cnt):
     wtp  = [tuple(x.rsplit('/', 1)) for x in cnt[0][0].split(" ")] #word/tag
     # print wtp, '\n'
-    wtp.insert(0, tuple([u'ROOT', u'S'])) #add the root 'word'
+    wtp.insert(0, tuple([u'ROOTNODE', u'S'])) #add the root 'word'
     # print wtp, '\n'
 
     #dependency relation reformat
